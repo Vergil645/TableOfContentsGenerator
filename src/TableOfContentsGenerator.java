@@ -1,7 +1,6 @@
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.regex.Pattern;
 
 public class TableOfContentsGenerator {
     /*
@@ -40,24 +39,29 @@ public class TableOfContentsGenerator {
             if (line == null) {
                 return tableOfContents.append(LINE_SEPARATOR).append(content).toString();
             }
-            prevNonHeaderLine = addHeader(tableOfContents, prevNonHeaderLine, line.strip());
             content.append(line).append(LINE_SEPARATOR);
+            if (line.length() == 0 || line.charAt(0) == '\t' || line.startsWith("    ")) {
+                prevNonHeaderLine = null;
+                continue;
+            }
+            prevNonHeaderLine = addHeader(tableOfContents, prevNonHeaderLine, line.trim());
         }
     }
 
     private static String addHeader(final StringBuilder tableOfContents, String prevNonHeaderLine, final String line) {
-        if (Pattern.matches("#{1,6}\\s+?[\\S&&[^#]]+?.*", line)) {
-            int headerLvl = line.indexOf(' ');
-            int end = line.length() - 1;
-            while (line.charAt(end) == '#') {
+        if (line.matches("#{1,6}\\s+?[\\S&&[^#]]+?.*")) {
+            String tmp = line.trim();
+            int headerLvl = tmp.indexOf(' ');
+            int end = tmp.length() - 1;
+            while (tmp.charAt(end) == '#') {
                 end--;
             }
-            tableOfContents.append(makeHeader(headerLvl, line.substring(headerLvl, end + 1).strip()));
+            tableOfContents.append(makeHeader(headerLvl, tmp.substring(headerLvl, end + 1).trim()));
             return null;
-        } else if (prevNonHeaderLine != null && Pattern.matches("=+?.*", line)) {
+        } else if (prevNonHeaderLine != null && line.matches("=+?\\s*")) {
             tableOfContents.append(makeHeader(1, prevNonHeaderLine));
             return null;
-        } else if (prevNonHeaderLine != null && Pattern.matches("-+?.*", line)) {
+        } else if (prevNonHeaderLine != null && line.matches("-+?\\s*")) {
             tableOfContents.append(makeHeader(2, prevNonHeaderLine));
             return null;
         } else {
