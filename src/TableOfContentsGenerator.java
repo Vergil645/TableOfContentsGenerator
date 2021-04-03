@@ -4,9 +4,16 @@ import java.util.Arrays;
 import java.util.regex.Pattern;
 
 public class TableOfContentsGenerator {
+    /*
+        Precondition:
+            args.length == 1 && args[0] -- correct name of markdown file
+        Postcondition:
+            File with name args[0] isn't changed
+            Print to standard output (System.out) the table of contents for the specified file
+     */
     public static void main(String[] args) {
         if (args.length != 1) {
-            System.err.println("Usage: TableOfContentsGenerator <filename>");
+            System.err.println("Usage: TableOfContentsGenerator input_file");
             return;
         }
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(args[0]), StandardCharsets.UTF_8))) {
